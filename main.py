@@ -14,7 +14,6 @@ wines = excel_data_df.to_dict(orient='records')
 sorted_wines = defaultdict(list)
 for wine in wines:
     sorted_wines[wine['Категория']].append(wine)
-print(sorted_wines)
 
 env = Environment(
     loader=FileSystemLoader('.'),
