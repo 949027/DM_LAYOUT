@@ -3,11 +3,18 @@ from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import pandas
+import argparse
 
 
 def main():
+    path = 'beverages.xlsx'
+    parser = argparse.ArgumentParser(description='Укажите, при необходимости, путь к excel-файлу с напитками')
+    parser.add_argument('--path', help='Путь к файлу')
+    args = parser.parse_args()
+    if args.path != None: path = args.path
+
     excel_data_df = pandas.read_excel(
-        'beverages.xlsx',
+        path,
         sheet_name='Лист1',
         na_values=' ',
         keep_default_na=False,
@@ -15,9 +22,9 @@ def main():
     wines = excel_data_df.to_dict(orient='records')
     age = datetime.now().year - 1920
 
-    sorted_wines = defaultdict(list)
+    grouped_wines = defaultdict(list)
     for wine in wines:
-        sorted_wines[wine['Категория']].append(wine)
+        grouped_wines[wine['Категория']].append(wine)
 
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -27,7 +34,7 @@ def main():
     template = env.get_template('template.html')
 
     rendered_page = template.render(
-        sorted_wines=sorted_wines,
+        sorted_wines=grouped_wines,
         age=age
     )
 
