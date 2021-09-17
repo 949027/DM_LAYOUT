@@ -1,33 +1,43 @@
 from collections import defaultdict
+from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import pandas
 
-excel_data_df = pandas.read_excel(
-    'wine3.xlsx',
-    sheet_name='Лист1',
-    na_values=' ',
-    keep_default_na=False,
-)
-wines = excel_data_df.to_dict(orient='records')
 
-sorted_wines = defaultdict(list)
-for wine in wines:
-    sorted_wines[wine['Категория']].append(wine)
+def main():
+    excel_data_df = pandas.read_excel(
+        'beverages.xlsx',
+        sheet_name='Лист1',
+        na_values=' ',
+        keep_default_na=False,
+    )
+    wines = excel_data_df.to_dict(orient='records')
+    age = datetime.now().year - 1920
 
-env = Environment(
-    loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html', 'xml'])
-)
+    sorted_wines = defaultdict(list)
+    for wine in wines:
+        sorted_wines[wine['Категория']].append(wine)
 
-template = env.get_template('template.html')
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
 
-rendered_page = template.render(sorted_wines=sorted_wines)
+    template = env.get_template('template.html')
 
-with open('index.html', 'w', encoding="utf8") as file:
-    file.write(rendered_page)
+    rendered_page = template.render(
+        sorted_wines=sorted_wines,
+        age=age
+    )
 
-server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-server.serve_forever()
+    with open('index.html', 'w', encoding="utf8") as file:
+        file.write(rendered_page)
 
+    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+
+if __name__ == '__main__':
+    main()
 
