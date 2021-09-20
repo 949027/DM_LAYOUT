@@ -7,11 +7,13 @@ import argparse
 
 
 def main():
-    path = 'beverages.xlsx'
     parser = argparse.ArgumentParser(description='Укажите, при необходимости, путь к excel-файлу с напитками')
-    parser.add_argument('--path', help='Путь к файлу')
+    parser.add_argument('--default_path',
+                        help='Путь к файлу',
+                        default='beverages.xlsx',
+    )
     args = parser.parse_args()
-    if args.path != None: path = args.path
+    if args.default_path != None: path = args.default_path
 
     excel_data_df = pandas.read_excel(
         path,
@@ -32,12 +34,10 @@ def main():
     )
 
     template = env.get_template('template.html')
-
     rendered_page = template.render(
         sorted_wines=grouped_wines,
         age=age
     )
-
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
 
